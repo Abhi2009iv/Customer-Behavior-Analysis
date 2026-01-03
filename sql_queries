@@ -1,0 +1,51 @@
+-- 1) MAU (monthly active users)
+SELECT DATE_TRUNC('month', event_time) AS month,
+       COUNT(DISTINCT user_id) AS mau
+FROM events
+GROUP BY 1
+ORDER BY 1;
+
+-- 2) DAU (daily active users)
+SELECT DATE(event_time) AS day,
+       COUNT(DISTINCT user_id) AS dau
+FROM events
+GROUP BY 1
+ORDER BY 1;
+
+-- 3) Simple Funnel (signup -> activation -> purchase)
+SELECT
+  SUM(CASE WHEN step = 'signup' THEN 1 ELSE 0 END) AS signups,
+  SUM(CASE WHEN step = 'activation' THEN 1 ELSE 0 END) AS activations,
+  SUM(CASE WHEN step = 'purchase' THEN 1 ELSE 0 END) AS purchases
+FROM (
+  SELECT user_id,
+    MAX(CASE WHEN event_name = 'signup' THEN 1 ELSE 0 END) AS signup,
+    MAX(CASE WHEN event_name IN ('view_product','add_to_cart','start_checkout') THEN 1 ELSE 0 END) AS activation,
+    MAX(CASE WHEN event_name = 'complete_purchase' THEN 1 ELSE 0 END) AS purchase,
+    CASE
+      WHEN MAX(CASE WHEN event_name = 'signup' THEN 1 ELSE 0 END) = 1 THEN 'signup'
+      WHEN MAX(CASE WHEN event_name IN ('view_product','add_to_cart','start_checkout') THEN 1 ELSE 0 END) = 1 THEN 'activation'
+      WHEN MAX(CASE WHEN event_name = 'complete_purchase' THEN 1 ELSE 0 END) = 1 THEN 'purchase'
+    END as step
+  FROM events
+  GROUP BY user_id
+) s;
+
+-- 4) Retention cohort (signup_week vs active_week)
+WITH signup AS (
+  SELECT user_id, DATE_TRUNC('week', signup_date)::date AS cohort_week
+  FROM users
+),
+events_week AS (
+  SELECT user_id, DATE_TRUNC('week', event_time)::date AS event_week
+  FROM events
+  GROUP BY user_id, DATE_TRUNC('week', event_time)
+)
+SELECT s.cohort_week,
+       e.event_week,
+       COUNT(DISTINCT e.user_id) AS active_users
+FROM signup s
+JOIN events_week e USING (user_id)
+WHERE e.event_week >= s.cohort_week
+GROUP BY 1,2
+ORDER BY 1,2;
