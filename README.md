@@ -6,7 +6,7 @@ It involves collecting, interpreting, and analysing data related to customer act
 ![image_2](https://github.com/user-attachments/assets/8abcc272-f473-49e0-a199-9ed98b15e79c)
 
 ## 💡 Business Problem
-Uncover key insights into customer purchase patterns, segment customers based on their behavior, and provide actionable recommendations to enhance marketing strategies, improve customer retention, and increase sales.
+Uncover key insights into customer purchase patterns, segment customers based on their behavior, and provide actionable recommendations to enhance marketing strategies, improve customer retention, and increase sales. Analyze e-commerce customer behavior to surface MAU/DAU trends, funnel conversion rates, and retention cohorts. 
 
 ## 💡 Data and Tools
 * Dataset :  [Data](https://www.kaggle.com/datasets/zeesolver/consumer-behavior-and-shopping-habits-dataset/data?select=shopping_behavior_updated.csv)
